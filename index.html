@@ -271,6 +271,22 @@
         </section>
 
         <section>
+          <p>ActiveRecord queries return a ActiveRecord::Relation.</p>
+          <p>Relations are lazily loaded, so the query is not actually performed until you use the results.</p>
+
+          <p>Examples of methods you'd use to trigger your query</p>
+          
+          <ul>
+            <li>first</li>
+            <li>last</li>
+            <li>all</li>
+            <li>find_each</li>
+            <li>each, map, inject etc...</li>
+            <li>...</li>
+          </ul>
+        </section>
+
+        <section>
           <p>Try these out in the Rails console</p>
 
           <pre><code class="sh">
