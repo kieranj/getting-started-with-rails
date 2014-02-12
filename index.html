@@ -1,0 +1,618 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>Getting Started with Rails</title>
+
+		<meta name="description" content="A quick overview of getting up and running with Rails 4">
+		<meta name="author" content="Kieran Johnson and Marc George">
+
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<link rel="stylesheet" href="css/reveal.min.css">
+		<link rel="stylesheet" href="css/theme/default.css" id="theme">
+
+		<!-- For syntax highlighting -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<!-- If the query includes 'print-pdf', use the PDF print sheet -->
+		<script>
+			document.write( '<link rel="stylesheet" href="css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+
+	<body>
+
+		<div class="reveal">
+			<div class="slides">
+
+        <section>
+          <h1>Getting Started<br/>with Rails</h1>
+        </section>
+
+				<section>
+					<pre><code class="sh">
+            $ rails new gists
+					</code></pre>
+
+          <pre><code class="sh">
+            $ cd gists
+          </code></pre>
+
+          <pre class="fragment"><code class="sh">
+            $ bundle exec rails s
+          </code></pre>
+
+          <pre class="fragment"><code class="sh">
+            open http://localhost:3000
+          </code></pre>
+
+          <!-- image of rails default page -->
+				</section>
+
+				<section>
+          <h1>Application Struction</h1>
+        </section>
+
+        <section>
+          <ul>
+            <li>
+              app
+              <ul>
+                <li>assets</li>
+                <li>controllers</li>
+                <li>helpers</li>
+                <li>mailers</li>
+                <li>models</li>
+                <li>views</li>
+              </ul>
+            </li>
+            <li>bin</li>
+            <li>config</li>
+            <li>db
+              <ul>
+                <li>migrate</li>
+              </ul>
+            </li>
+            <li>...</li>
+          </ul>
+        </section>
+
+        <section>
+          <ul>
+            <li>...</li>
+            <li>lib
+              <ul>
+                <li>tasks</li>
+              </ul>
+            </li>
+            <li>log</li>
+            <li>public</li>
+            <li>test/spec</li>
+            <li>tmp</li>
+            <li>Gemfile</li>
+            <li>Rakefile</li>
+          </ul>
+        </section>
+
+        <section>
+          <h1>Models</h1>
+        </section>
+
+        <section>
+          <h2>Create a Gist</h2>
+          
+          <pre><code class="sh">
+            $ bundle exec rails g model Gist
+          </code></pre>
+
+          <p class="fragment">Model names should always be singular</p>
+        </section>
+
+        <section>
+          <h2>Edit the Migration</h2>
+          <p>db/migrate/YYMMDDHHMMSS_create_gists.rb</p>
+          <pre><code class="ruby">
+            class CreateGists < ActiveRecord::Migration
+              def change
+                create_table :gists do |t|
+                end
+              end
+            end
+          </code></pre>
+        </section>
+
+        <section>
+          <pre><code class="ruby">
+            class CreateGists < ActiveRecord::Migration
+              def change
+                create_table :gists do |t|
+                  # An "id" column is created by rails
+                  # unless you specify otherwise
+
+                  t.string  :name
+                  t.text    :code
+                  t.string  :language
+                  t.boolean :public, default: false
+
+                  t.timestamps
+                  # automatically adds created_at/updated_at datetime
+                  # fields which are updated by Rails
+                end
+              end
+            end
+          </code></pre>
+
+          <p class="fragment">Run the migration</p>
+
+          <pre class="fragment"><code class="sh">
+            $ bundle exec rake db:migrate
+          </code></pre>
+        </section>
+
+        <section>
+          <h1>Routes</h1>
+        </section>
+
+        <section>
+          <p>config/routes.rb</p>
+
+          <pre><code class="ruby">
+            Gists::Application.routes.draw do
+
+              resources :gists
+
+              root to: 'gists#index'
+
+            end
+          </code></pre>
+        </section>
+
+        <section>
+          <h2>Show all routes</h2>
+
+          <pre class="fragment"><code class="sh">
+            $ bundle exec rake routes
+          </code></pre>
+
+          <pre class="fragment"><code class="sh">
+            Prefix  Verb    URI Pattern               Controller#Action
+             gists  GET     /gists(.:format)          gists#show
+                    POST    /gists(.:format)          gists#create
+          new_gist  GET     /gists/new(.:format)      gists#new
+         edit_gist  GET     /gists/:id/edit(.:format) gists#edit
+              gist  GET     /gists/:id(.:format)      gists#show
+                    PATCH   /gists/:id(.:format)      gists#update
+                    PUT     /gists/:id(.:format)      gists#update
+                    DELETE  /gists/:id(.:format)      gists#destroy
+              root  GET     /                         gists#index
+          </code></pre>
+        </section>
+
+        <section>
+          <h1>Controllers</h1>
+        </section>
+
+        <section>
+          <h2>Generating a Controller</h2>
+
+          <pre><code class="sh">
+            $ bundle exec rails g controller Gists
+          </code></pre>
+
+          <p class="fragment">Controller names should always be plural</p>
+        </section>
+
+        <section>
+          <h2>Add an index action</h2>
+
+          <p>app/controllers/gists_controller.rb</p>
+
+          <pre><code class="ruby">
+            class GistsController < ApplicationController
+
+              def index
+                @gists = Gist.order(:created_at)
+              end
+
+            end
+          </code></pre>
+
+          <p class="fragment">Any instance variables in a controller action<br/>will be available inside the view</p>
+
+          <pre class="fragment"><code class="sh">
+            open http://localhost:3000/gists
+          </code></pre>
+
+          <!-- image oops missing template -->
+        </section>
+
+        <section>
+          <h1>ActiveRecord</h1>
+        </section>
+
+        <section>
+          <h2>Query Interface</h2>
+          <ul style="margin-bottom: 20px">
+            <li>where(key: value)</li>
+            <li>joins(:table)</li>
+            <li>includes(:table)</li>
+            <li>limit(100)</li>
+            <li>order(:created_at)</li>
+            <li>group(:created_at)</li>
+            <li>...</li>
+            <li><a href="http://guides.rubyonrails.org/active_record_querying.html">http://guides.rubyonrails.org/active_record_querying.html</a></li>
+          </ul>
+
+          <p>These accept a either a symbol/hash or a SQL snippet, eg</p>
+
+          <pre><code class="ruby">
+  Gist.joins(:user).where(users: { email: 'kieran@invisiblelines.com' })
+          </code></pre>
+
+          <pre><code class="ruby">
+  Gist.joins('INNER JOINS users ON "users"."id" = "gists"."user_id"').where(['users.email = ?', 'kieran@invisiblelines.com']) 
+          </code></pre>
+
+          <p><small>
+            When interpolating variables into SQL use placeholders to have rails automatically esacpe the input.
+            <br>
+            This is done automatically when using a hash.
+          </small></p>
+        </section>
+
+        <section>
+          <p>Try these out in the Rails console</p>
+
+          <pre><code class="sh">
+            $ bundle exec rails c
+          </code></pre>
+        </section>
+
+        <section>
+          <h1>Templates</h1>
+        </section>
+
+        <section>
+          <h2>ERB Basics</h2>
+
+          <pre><code class="ruby">
+            <% 1 + 1 %>  # Result is not output
+
+            <%= 1 + 1 %> # Result is output
+
+            <%# 1 + 1 %> # Comment
+          </code></pre>
+
+          <div class="fragment">
+            <p>app/views/gists/index.html.erb</p>
+
+            <pre><code class="html ruby">
+              <table>
+                <tbody>
+                  <% @gists.each do |gist| %>
+                    <tr>
+                      <td>
+                        <%= link_to gist.name, gist %>
+                      </td>
+                    </tr>
+                  
+                </tbody>
+              </table>
+            </code></pre>
+          </div>
+        </section>
+
+        <section>
+          <h2>Add a link to create a new Gist</h2>
+
+          <p>app/views/gists/index.html.erb</p>
+
+          <pre><code class="ruby">
+            <%= link_to 'New Gist', new_gist_path %>
+          </code></pre>          
+        </section>
+
+        <section>
+          <h1>Forms</h1>
+        </section>
+
+        <section>
+          <p>app/views/gists/new.html.erb</p>
+
+          <pre><code class="ruby">
+            <%= form_for(@gist) do |f| %>
+              <p>
+                <%= f.label :name %>
+                <%= f.text_field :name %>
+              </p>
+
+              <p>
+                <%= f.label :language %>
+                <%= f.select :language, Gist::Languages, prompt: 'Please select...' %>
+              </p>
+
+              <p>
+                <%= f.label :public do %>
+                  <%= f.check_box :public %> Public?
+                <% end %>
+              </p>
+
+              <p>
+                <%= f.label :code %>
+                <%= f.text_area :code, rows: 20, cols: 20 %>
+              </p>
+
+              <%= f.submit 'Create' %>
+            <% end %>
+          </code></pre>
+
+          <ul>
+            <li class="fragment">URL for form is determined by the class on the object, eg @gist</li>
+            <li class="fragment">Any values assigned to object will be automatically set on the form</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Wiring up the Controller</h2>
+
+          <p class="fragment">If a controller can locate a template for the action it doesn't need a controller action, however we need an instance of our model for the form.</p>
+
+          <br/>
+
+          <div class="fragment">
+            <p>app/controllers/gists_controller.rb</p>
+
+            <pre><code class="ruby">
+              class GistsController < ApplicationController
+                ...
+
+                def new
+                  @gist = Gist.new
+                end
+              end
+            </code></pre>
+          </div>
+        </section>
+
+        <section>
+          <p>Now we need to handle the POST action</p>
+
+          <br/>
+
+          <div class="fragment">
+            <p>app/controllers/gists_controller.rb</p>
+
+            <pre><code class="ruby">
+              class GistsController < ApplicationController
+                ...
+
+                def create
+                  @gist = Gist.new(gist_params)
+                  if @gist.save
+                    redirect_to gists_path, notice: 'Gist successfully created'
+                  else
+                    render action: :new
+                  end
+                end
+
+                private
+
+                  # We need to specify the form parameters we will allow
+                  #
+                  def gist_params
+                    params.require(:gist).allow(:name, :code, :language)
+                  end
+              end
+            </code></pre>
+          </div>
+        </section>
+
+        <section>
+          <h1>Validations</h1>
+        </section>
+
+        <section>
+        
+          <h2>Available Validations</h2>
+          <ul>
+            <li class="fragment">Presence</li>
+            <li class="fragment">Uniqueness</li>
+            <li class="fragment">Inclusion</li>
+            <li class="fragment">Exclusion</li>
+            <li class="fragment">Format</li>
+            <li class="fragment">Numericality</li>
+            <li class="fragment"><a href="http://edgeguides.rubyonrails.org/active_record_validations.html">http://edgeguides.rubyonrails.org/active_record_validations.html</a></li>
+          </ul>
+        </section>
+
+        <section>
+          <p>app/models/gist.rb</p>
+
+          <pre><code class="ruby">
+            class Gist < ActiveRecord::Base
+
+              LANGUAGES = %w(Ruby Javascript Scala Go Python Objective-C)
+              
+              validates :name, presence: true, uniqueness: true
+
+            end
+          </code></pre>
+        </section>
+
+        <section>
+          <h2>Displaying Errors</h2>
+
+          <p>Validation errors are available in the<br/>"errors" object on the model</p>
+          <p>errors.full_messages is an array of all error messages</p>
+
+          <br/>
+
+          <div class="fragment">
+            <p>app/views/gists/new.html.erb</p>
+
+            <pre><code class="ruby">
+              <ul>
+                <% @gist.errors.full_messages.each do |message| %>
+                  <li>
+                    <%= message %>
+                  </li>
+                <% end %>
+              </ul>
+            </code></pre>
+          </div>
+        </section>
+
+        <section>
+          <h1>Associations</h1>
+        </section>
+
+        <section>
+          <h2>Association Types</h2>
+          <pre><code class="ruby">
+            has_one    :owner
+
+            belongs_to :user
+
+            has_many   :gists
+            has_many   :categories, through: :gist_categories
+
+            has_and_belongs_to_many :categories # rarely used nowadays
+          </code></pre>
+        </section>
+
+        <section>
+          <h2>Create a User</h2>
+
+          <pre><code class="sh">
+            $ bundle exec rails g migrate resource User
+          </code></pre>
+
+          <div class="fragment">
+            <p>db/migrate/YYMMDDHHMMSS_create_users.rb</p>
+
+            <pre><code class="ruby">
+              class CreateUsers < ActiveRecord::Migration
+                create_table :users do |t|
+                  t.string :email
+                  t.string :password_digest
+                  t.timestamps
+                end
+              end
+            </code></pre>
+          </div>
+
+          <div class="fragment">
+            <p>Run the migration</p>
+
+            <pre><code class="sh">
+              $ bundle exec rake db:migrate
+            </code></pre>
+          </div>
+
+        </section>
+        <section>
+          <h2>Add the Associations</h2>
+
+          <div class="fragment">
+            <p>app/models/user.rb</p>
+
+            <pre><code class="ruby">
+              class User < ActiveRecord::Base
+
+                validates :email, presence: true, uniqueness: true
+
+                has_many :gists, dependent: :destroy
+
+                # has_secure_password
+
+                def email=(string)
+                  super(string.downcase)
+                end
+
+              end
+            </code></pre>
+          </div>
+        </section>
+
+        <section>
+          <p>app/models/gist.rb</p>
+
+          <pre><code class="ruby">
+            class Gist < ActiveRecord::Base
+
+              validates :name, presence: true, uniqueness: true
+
+              belongs_to :user
+
+            end
+          </code></pre>
+        </section>
+
+        <section>
+          <h1>Exercises</h1>
+
+          <ul>
+            <li>Handle edit/update/destroy actions for gists</li>
+            <li>Add a controller/views/route for signing up users</li>
+            <li>Add a controller/views/route for authenticating users</li>
+            <li>Only show a user their gists</li>
+          </ul>
+        </section>
+
+				<section>
+					<h1>THE END</h1>
+				</section>
+
+        <section>
+          <h1>THANK YOU</h1>
+        </section>
+
+			</div>
+
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.min.js"></script>
+
+		<script>
+
+			// Full list of configuration options available here:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+
+				theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+				transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+				// Parallax scrolling
+				// parallaxBackgroundImage: 'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg',
+				// parallaxBackgroundSize: '2100px 900px',
+
+				// Optional libraries used to extend on reveal.js
+				dependencies: [
+					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: 'plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+					{ src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+				]
+			});
+
+		</script>
+
+	</body>
+</html>
