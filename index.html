@@ -275,15 +275,46 @@
           <p>Relations are lazily loaded, so the query is not actually performed until you use the results.</p>
 
           <p>Examples of methods you'd use to trigger your query</p>
-          
+
           <ul>
             <li>first</li>
             <li>last</li>
             <li>all</li>
+            <li>count</li>
             <li>find_each</li>
+            <li>select</li>
+            <li>pluck</li>
             <li>each, map, inject etc...</li>
             <li>...</li>
           </ul>
+        </section>
+
+        <section>
+          <h2>ActiveRecord Examples</h2>
+
+          <div class="fragment">
+            <p>e.g. the most recent Ruby gist</p>
+
+            <pre><code class="ruby">
+              Gist.where(language: 'Ruby').order(:created_at).first
+            </code></pre>
+          </div>
+
+          <div class="fragment">
+            <p>all gists grouped by language</p>
+            
+            <pre><code class="ruby">
+              Gist.group(:language).count
+            </code></pre>
+          </div>
+
+          <div class="fragment">
+            <p>all gists names (without initializing an ActiveRecord object for each)</p>
+            
+            <pre><code class="ruby">
+              Gist.pluck(:name)
+            </code></pre>
+          </div>
         </section>
 
         <section>
