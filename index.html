@@ -272,13 +272,17 @@
             <li>...</li>
             <li><a href="http://guides.rubyonrails.org/active_record_querying.html">http://guides.rubyonrails.org/active_record_querying.html</a></li>
           </ul>
+        </section>
 
-          <p>These accept a either a symbol/hash or a SQL snippet, eg</p>
+        <section>
+          <p>These accept a either a symbol/hash, e.g.</p>
 
           <pre><code class="ruby">
   Gist.joins(:user).where(users: { email: 'kieran@invisiblelines.com' })
           </code></pre>
 
+          <p>or a SQL snippet...</p>
+          
           <pre><code class="ruby">
   Gist.joins('INNER JOINS users ON "users"."id" = "gists"."user_id"').where(['users.email = ?', 'kieran@invisiblelines.com']) 
           </code></pre>
