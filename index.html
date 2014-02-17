@@ -159,6 +159,9 @@
                   # automatically adds created_at/updated_at datetime
                   # fields which are updated by Rails
                 end
+
+                add_index :gists, :name, unique: true
+                add_index :gists, :visible
               end
             end
           </code></pre>
