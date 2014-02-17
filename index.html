@@ -282,7 +282,7 @@
           </code></pre>
 
           <p>or a SQL snippet...</p>
-          
+
           <pre><code class="ruby">
   Gist.joins('INNER JOINS users ON "users"."id" = "gists"."user_id"').where(['users.email = ?', 'kieran@invisiblelines.com']) 
           </code></pre>
@@ -325,7 +325,7 @@
           </div>
 
           <div class="fragment">
-            <p>all gists language counts</p>
+            <p>all gist language counts</p>
             
             <pre><code class="ruby">
               Gist.group(:language).count
@@ -333,7 +333,7 @@
           </div>
 
           <div class="fragment">
-            <p>all gists names (without initializing an ActiveRecord object for each)</p>
+            <p>all gist names as an array</p>
             
             <pre><code class="ruby">
               Gist.pluck(:name)
