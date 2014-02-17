@@ -364,23 +364,33 @@
             <%# 1 + 1 %> # Comment
           </code></pre>
 
-          <div class="fragment">
-            <p>app/views/gists/index.html.erb</p>
+          <p>Output is escaped by default</p>
+          <p class="fragment">To output an unescaped value, use either</p>
+          <pre class="fragment"><code class="ruby">
+            <%== @model.to_json %>
+          </code></pre>
 
-            <pre><code class="html ruby">
-              <table>
-                <tbody>
-                  <% @gists.each do |gist| %>
-                    <tr>
-                      <td>
-                        <%= link_to gist.name, gist %>
-                      </td>
-                    </tr>
-                  
-                </tbody>
-              </table>
-            </code></pre>
-          </div>
+          <pre class="fragment"><code class="ruby">
+            <%= raw @model.to_json %>
+          </code></pre>
+        </section>
+
+        <section>
+          <p>app/views/gists/index.html.erb</p>
+
+          <pre><code class="html">
+            table
+              tbody
+                <% @gists.each do |gist| %>
+                  tr
+                    td
+                      <%= link_to gist.name, gist %>
+                    td
+                  tr
+                <% end %>
+              tbody
+            table
+          </code></pre>
         </section>
 
         <section>
