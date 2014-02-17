@@ -499,6 +499,26 @@
         </section>
 
         <section>
+          <h1>Strong Parameters</h1>
+        </section>
+
+        <section>
+          <p>Parameters that have not been whitelisted are forbidden by ActiveModel</p>
+
+          <pre class="fragment"><code class="ruby">
+            params.require(:gist).allow(:name)
+          </code></pre>
+
+          <pre class="fragment"><code class="ruby">
+            params.require(:gist).allow(:name, language: [:name])
+          </code></pre>
+
+          <pre class="fragment"><code class="ruby">
+            params.require(:gist).permit!
+          </code></pre>
+        </section>
+
+        <section>
           <h1>Validations</h1>
         </section>
 
@@ -554,20 +574,64 @@
         </section>
 
         <section>
+          <h1>Scopes</h1>
+        </section>
+
+        <section>
+          <p>We only want to show the visible gists</p>
+
+          <pre><code class="ruby">
+            class Gist < ActiveRecord::Base
+
+              ...
+
+              scope :visible, -> { where(visible: true) }
+
+              default_scope order(:created_at)
+
+              ...
+            end
+          </code></pre>
+
+          <ul>
+            <li class="fragment">Must be a callable object</li>
+            <li class="fragment">Can be made up of any number of conditions</li>
+            <li class="fragment">Are chainable</li>
+            <li class="fragment">default_scope can be overridden using<br/>"unscoped" or "reorder(:column_name)"</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Update the controller</h2>
+
+          <pre><code class="ruby">
+            class GistsController < ApplicationController
+              ...
+
+              def index
+                @gists = Gist.visible
+              end
+            end
+          </code></pre>
+        </section>
+
+        <section>
           <h1>Associations</h1>
         </section>
 
         <section>
           <h2>Association Types</h2>
           <pre><code class="ruby">
-            has_one    :owner
+            has_one    :owner # foreign key on associated object
 
-            belongs_to :user
+            belongs_to :user  # has a foreign key
 
             has_many   :gists
             has_many   :categories, through: :gist_categories
+            # join table with attributes
 
-            has_and_belongs_to_many :categories # rarely used nowadays
+            has_and_belongs_to_many :categories
+            # rarely used nowadays
           </code></pre>
         </section>
 
@@ -646,7 +710,7 @@
             <li>Handle edit/update/destroy actions for gists</li>
             <li>Add a controller/views/route for signing up users</li>
             <li>Add a controller/views/route for authenticating users</li>
-            <li>Only show a user their gists</li>
+            <li>Only show gists for a particular user</li>
           </ul>
         </section>
 
