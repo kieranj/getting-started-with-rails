@@ -616,6 +616,33 @@
         </section>
 
         <section>
+          <h2>Showing the content</h2>
+
+          <p>app/controllers/gists_controller.rb</p>
+
+          <pre><code class="ruby">
+            class GistsController < ApplicationController
+
+              def show
+                @gist = Gist.find(params[:id])
+              end
+
+            end
+          </code></pre>
+
+          <p>app/views/show.html.erb</p>
+
+          <pre><code class="ruby">
+            <code>
+              <%= raw @gist.code %>
+            </code>
+
+            <%= link_to 'Edit', edit_gist_path(@gist) %>
+            <%= link_to 'Destroy', gist_path(@gist), method: :delete %>
+          </code></pre>
+        </section>
+
+        <section>
           <h1>Associations</h1>
         </section>
 
