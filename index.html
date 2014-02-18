@@ -39,7 +39,12 @@
           <h1>Getting Started<br/>with Rails</h1>
         </section>
 
+        <section>
+          <p>https://github.com/kieranj/getting-started-with-rails</p>
+        </section>
+
 				<section>
+          <h2>Setup</h2>
 
           <pre><code class="sh">
             $ gem install bundler
@@ -121,13 +126,14 @@
         </section>
 
         <section>
-          <h2>Create a Gist</h2>
+          <h2>Create a Model</h2>
           
           <pre><code class="sh">
             $ bundle exec rails g model Gist
           </code></pre>
 
           <p class="fragment">Model names should always be singular</p>
+          <p class="fragment">The table name for model will be the plural version of the model</p>
         </section>
 
         <section>
@@ -166,12 +172,17 @@
               end
             end
           </code></pre>
+        </section>
 
-          <p class="fragment">Run the migration</p>
+        <section>
+          <h2>Run the migration</h2>
 
           <pre class="fragment"><code class="sh">
             $ bundle exec rake db:migrate
           </code></pre>
+
+          <p class="fragment">This will change the database structure and update config/schema.rb</p>
+          <p class="fragment">schema.rb is the authoritive version of your database schema.rb</p>
         </section>
 
         <section>
@@ -189,6 +200,22 @@
               root to: 'gists#index'
 
             end
+          </code></pre>
+
+          <p class="fragment">For any resource that responds to CRUD actions we set the route using "resources"</p>
+        </section>
+
+        <section>
+          <p>For one off actions you can match a HTTP verb to the action, eg</p>
+
+          <pre class="fragment"><code class="ruby">
+            get '/gists/popular' => 'controller#action'
+          </code></pre>
+
+          <p class="fragment">For actions that must respond to multiple request types</p>
+
+          <pre class="fragment"><code class="ruby">
+            match '/gists/search' => 'gists#search', via: [ :get, :post ]
           </code></pre>
         </section>
 
@@ -225,6 +252,27 @@
           </code></pre>
 
           <p class="fragment">Controller names should always be plural</p>
+          <p class="fragment">Controller names map to the resource name in your resource, e.g. resources :gists => gists_controller</p>
+        </section>
+
+        <section>
+          <h2>Controller Actions</h2>
+
+          <p>By default when you use "resources" in your routes Rails will expect your controller to define 7 common actions</p>
+
+          <pre><code class="sh">
+            Prefix  Verb    URI Pattern               Controller#Action
+             gists  GET     /gists(.:format)          gists#show
+                    POST    /gists(.:format)          gists#create
+          new_gist  GET     /gists/new(.:format)      gists#new
+         edit_gist  GET     /gists/:id/edit(.:format) gists#edit
+              gist  GET     /gists/:id(.:format)      gists#show
+                    PATCH   /gists/:id(.:format)      gists#update
+                    PUT     /gists/:id(.:format)      gists#update
+                    DELETE  /gists/:id(.:format)      gists#destroy
+              root  GET     /                         gists#index
+          </code></pre>
+            
         </section>
 
         <section>
@@ -298,11 +346,10 @@
 
         <section>
           <p>ActiveRecord queries return a ActiveRecord::Relation.</p>
-          <p>Relations are lazily loaded, so the query is not actually performed until you use the results.</p>
+          <p class="fragment">Relations are lazily loaded, so the query is not actually performed until you use the results.</p>
+          <p class="fragment">Examples of methods you'd use to trigger your query</p>
 
-          <p>Examples of methods you'd use to trigger your query</p>
-
-          <ul>
+          <ul class="fragment">
             <li>first</li>
             <li>last</li>
             <li>all</li>
@@ -319,7 +366,7 @@
           <h2>ActiveRecord Examples</h2>
 
           <div class="fragment">
-            <p>e.g. the most recent Ruby gist</p>
+            <p>The most recent Ruby gist</p>
 
             <pre><code class="ruby">
               Gist.where(language: 'Ruby').order(:created_at).first
@@ -327,7 +374,7 @@
           </div>
 
           <div class="fragment">
-            <p>all gist language counts</p>
+            <p>All gist language counts</p>
             
             <pre><code class="ruby">
               Gist.group(:language).count
@@ -335,7 +382,7 @@
           </div>
 
           <div class="fragment">
-            <p>all gist names as an array</p>
+            <p>All gist names as an array</p>
             
             <pre><code class="ruby">
               Gist.distinct.pluck(:name)
@@ -352,7 +399,7 @@
         </section>
 
         <section>
-          <h1>Templates</h1>
+          <h1>Views</h1>
         </section>
 
         <section>
@@ -378,6 +425,39 @@
         </section>
 
         <section>
+          <h2>Layouts</h2>
+          <ul>
+            <li>app/views/layouts/application.html.erb</li>
+            <li>This is your default layout</li>
+            <li><%= yield %> - outputs your template into the layout</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Partials</h2>
+
+          <ul>
+            <li>Reuse common components by splitting them into partials</li>
+            <li class="fragment">A partial is a template beginning with an underscore</li>
+            <li class="fragment">To render a partial</li>
+          </ul>
+
+          <pre class="fragment"><code class="ruby">
+            <%= render partial: 'template_name' # long hand %>
+          </code></pre>
+
+          <pre class="fragment"><code class="ruby">
+            <%= render 'template_name' # short hand %>
+          </code></pre>
+
+          <pre class="fragment"><code class="ruby">
+            <%= render @collection %>
+          </code></pre>
+        </section>
+
+        <section>
+          <h2>Templates</h2>
+
           <p>app/views/gists/index.html.erb</p>
 
           <pre><code class="html">
@@ -421,7 +501,7 @@
 
               <p>
                 <%= f.label :language %>
-                <%= f.select :language, Gist::LANGUAGES, prompt: 'Please select...' %>
+                <%= f.select :language, Gist::Languages, prompt: 'Please select...' %>
               </p>
 
               <p>
@@ -440,17 +520,14 @@
           </code></pre>
 
           <ul>
-            <li class="fragment">URL for form is determined by the class of the object, eg @gist</li>
-            <li class="fragment">Any values assigned to object will be automatically set on the form</li>
+            <li class="fragment">URL for form is determined by the object and its state</li>
+            <li class="fragment">We can override the URL using the :url option</li>
+            <li class="fragment">Any values assigned to object will be populate the form</li>
           </ul>
         </section>
 
         <section>
           <h2>Wiring up the Controller</h2>
-
-          <p class="fragment">If a controller can locate a template for the action and<br/>no action has been defined in the controller then the template<br/>will be rendered.</p>
-
-          <br/>
 
           <div class="fragment">
             <p>app/controllers/gists_controller.rb</p>
@@ -505,7 +582,11 @@
         </section>
 
         <section>
-          <p>Parameters that have not been whitelisted are forbidden by ActiveModel</p>
+          <p>Parameters that have not been whitelisted<br/>are ignored by ActiveModel</p>
+
+          <br/>
+
+          <p class="fragment">To whitelist parameters</p>
 
           <pre class="fragment"><code class="ruby">
             params.require(:gist).allow(:name)
@@ -556,7 +637,7 @@
           <h2>Displaying Errors</h2>
 
           <p>Validation errors are available in the<br/>"errors" object on the model</p>
-          <p>errors.full_messages is an array of all error messages</p>
+          <p>"object.errors.full_messages" is an array of all error messages</p>
 
           <br/>
 
@@ -574,11 +655,20 @@
             </code></pre>
           </div>
 
-          <p class="fragment">This should now be refactored into a helper</p>
+          <p class="fragment">This should really be refactored into a helper</p>
         </section>
 
         <section>
           <h1>Scopes</h1>
+        </section>
+
+        <section>
+          <ul>
+            <li>Must be a callable object, e.g. Proc/lambda, or defined as a class method</li>
+            <li class="fragment">Can be made up of any number of conditions</li>
+            <li class="fragment">Are chainable</li>
+            <li class="fragment">default_scope can be overridden using<br/>"unscoped" or "reorder(:column_name)"</li>
+          </ul>
         </section>
 
         <section>
@@ -596,13 +686,6 @@
               ...
             end
           </code></pre>
-
-          <ul>
-            <li class="fragment">Must be a callable object</li>
-            <li class="fragment">Can be made up of any number of conditions</li>
-            <li class="fragment">Are chainable</li>
-            <li class="fragment">default_scope can be overridden using<br/>"unscoped" or "reorder(:column_name)"</li>
-          </ul>
         </section>
 
         <section>
@@ -653,16 +736,17 @@
         <section>
           <h2>Association Types</h2>
           <pre><code class="ruby">
-            has_one    :owner # foreign key on associated object
+            has_one    :owner # one to one, foreign key on associated object
 
-            belongs_to :user  # has a foreign key
+            belongs_to :user  # one to one, has the foreign key
 
-            has_many   :gists
+            has_many   :gists # one to many
+
             has_many   :categories, through: :gist_categories
-            # join table with attributes
+            # many to many, join table with attributes
 
             has_and_belongs_to_many :categories
-            # rarely used nowadays, prefer has_many :through
+            # many to many, rarely used nowadays, prefer has_many :through
           </code></pre>
         </section>
 
@@ -752,6 +836,8 @@
           <pre><code class="ruby">
             class Gist < ActiveRecord::Base
 
+              Languages = %w(Ruby Javascript Scala Go Python Objective-C)
+
               validates :name, presence: true, uniqueness: true
 
               belongs_to :user
@@ -772,15 +858,16 @@
         </section>
 
 				<section>
-					<h1>THE END</h1>
+					<h1>The end</h1>
 				</section>
 
         <section>
-          <h1>THANK YOU</h1>
+          <h1>Thank You</h1>
         </section>
 
         <section>
           <h1>More?</h1>
+          <p>https://github.com/kieranj/gist-o-matic</p>
         </section>
 
         <section>
@@ -809,8 +896,10 @@
         </section>
 
         <section>
+          <h2>Authentication Helpers</h2>
+
           <pre><code class="ruby">
-            class ApplicationController
+            class ApplicationController < ActionController::Base
 
               private
                 
@@ -832,6 +921,8 @@
         </section>
 
         <section>
+          <h2>Filter</h2>
+
           <pre><code class="ruby">
             class GistsController < ApplicationController
 
