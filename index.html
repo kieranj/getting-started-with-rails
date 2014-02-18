@@ -290,7 +290,7 @@
           </code></pre>
 
           <p><small>
-            When interpolating variables into SQL use placeholders to have rails automatically esacpe the input.
+            When interpolating variables into SQL use placeholders to have rails automatically escape the input.
             <br>
             This is done automatically when using a hash.
           </small></p>
@@ -421,7 +421,7 @@
 
               <p>
                 <%= f.label :language %>
-                <%= f.select :language, Gist::Languages, prompt: 'Please select...' %>
+                <%= f.select :language, Gist::LANGUAGES, prompt: 'Please select...' %>
               </p>
 
               <p>
