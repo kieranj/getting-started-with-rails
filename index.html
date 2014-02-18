@@ -72,6 +72,7 @@
 
 				<section>
           <h1>Application Struction</h1>
+          <h2>Convention over Configuration</h2>
         </section>
 
         <section>
@@ -235,7 +236,7 @@
             class GistsController < ApplicationController
 
               def index
-                @gists = Gist.order(:created_at)
+                @gists = Gist.all
               end
 
             end
@@ -284,7 +285,8 @@
           <p>or a SQL snippet...</p>
 
           <pre><code class="ruby">
-  Gist.joins('INNER JOINS users ON "users"."id" = "gists"."user_id"').where(['users.email = ?', 'kieran@invisiblelines.com']) 
+              
+  Gist.joins('INNER JOIN "users" ON "users"."id" = "gists"."user_id"').where(['users.email = ?', 'kieran@invisiblelines.com']) 
           </code></pre>
 
           <p><small>
@@ -336,7 +338,7 @@
             <p>all gist names as an array</p>
             
             <pre><code class="ruby">
-              Gist.pluck(:name)
+              Gist.distinct.pluck(:name)
             </code></pre>
           </div>
         </section>
@@ -491,7 +493,7 @@
                   # We need to specify the form parameters we will allow
                   #
                   def gist_params
-                    params.require(:gist).allow(:name, :code, :language)
+                    params.require(:gist).permit(:name, :visible, :language, :code)
                   end
               end
             </code></pre>
@@ -572,6 +574,8 @@
             </code></pre>
           </div>
         </section>
+
+        <p class="fragment">This should now be refactored into a helper</p>
 
         <section>
           <h1>Scopes</h1>
@@ -658,7 +662,7 @@
             # join table with attributes
 
             has_and_belongs_to_many :categories
-            # rarely used nowadays
+            # rarely used nowadays, prefer has_many :through
           </code></pre>
         </section>
 
@@ -666,7 +670,7 @@
           <h2>Create a User</h2>
 
           <pre><code class="sh">
-            $ bundle exec rails g migrate resource User
+            $ bundle exec rails g resource User
           </code></pre>
 
           <div class="fragment">
@@ -678,6 +682,30 @@
                   t.string :email
                   t.string :password_digest
                   t.timestamps
+                end
+
+                add_index :users, :email, unique: true
+              end
+            </code></pre>
+          </div>
+        </section>
+
+        <section>
+          <h2>Add the foreign key</h2>
+
+          <pre><code class="sh">
+            $ bundle exec rails g migration add_user_id_to_gists
+          </code></pre>
+
+          <div class="fragment">
+            <p>db/migrate/YYMMDDHHMMSS_add_user_id_to_gists.rb</p>
+
+            <pre><code class="ruby">
+              class AddUserIdToGists < ActiveRecord::Migration
+                def change
+                  add_column :gists, :user_id, :integer
+
+                  add_index :gists, :user_id
                 end
               end
             </code></pre>
@@ -705,10 +733,12 @@
 
                 has_many :gists, dependent: :destroy
 
-                # has_secure_password
+                has_secure_password 
+                # for implementing simple authentication
+                # ensure gemfile contains bcrypt-ruby
 
                 def email=(string)
-                  super(string.downcase)
+                  super(string.try(:downcase))
                 end
 
               end
@@ -749,6 +779,73 @@
           <h1>THANK YOU</h1>
         </section>
 
+        <section>
+          <h1>More?</h1>
+        </section>
+
+        <section>
+          <h2>Authentication</h2>
+
+          <pre><code class="ruby">
+            class SessionsController < ApplicationController
+
+              def create
+                user = User.where(email: params[:session][:email]).first
+                if user && user.authenticate(params[:session][:password])
+                  session[:user_id] = user.id
+                  redirect_to gists_path
+                else
+                  redirect_to :back
+                end
+              end
+
+              def destroy
+                session[:user_id] = nil
+                redirect_to root_path
+              end
+
+            end
+          </code></pre>
+        </section>
+
+        <section>
+          <pre><code class="ruby">
+            class ApplicationController
+
+              private
+                
+                def current_user
+                  @current_user ||= User.find(session[:user_id]) if session[:user_id]
+                end
+
+                def authenticate
+                  redirect_to(new_session_path) unless signed_in?
+                end
+
+                def signed_in?
+                  !!current_user
+                end
+
+                helper_method :current_user, :signed_in?
+            end
+          </code></pre>
+        </section>
+
+        <section>
+          <pre><code class="ruby">
+            class GistsController < ApplicationController
+
+              # require a signed in user to create a gist
+              before_action :authenticate, except: [ :index, :show ]
+
+              def create
+                # use the association to build the resource
+                @gist = current_user.gists.build(gist_params)
+                ...
+              end
+            end
+          </code></pre>
+        </section>
 			</div>
 
 		</div>
